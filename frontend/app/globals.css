@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-start: #e0f2fe;
+  --bg-end: #fff7ed;
+}
+
+body {
+  @apply text-ink;
+  background: radial-gradient(circle at 10% 20%, var(--bg-start), transparent 40%),
+    radial-gradient(circle at 90% 80%, var(--bg-end), transparent 45%),
+    #f8fafc;
+}
