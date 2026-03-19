@@ -8,7 +8,7 @@ AI SaaS application that analyzes a resume and returns recruiter-oriented improv
 - Backend: FastAPI + spaCy + OpenAI integration
 - Database: PostgreSQL (SQLAlchemy)
 - AI runtime: OpenAI API
-- Deployment: Docker + docker-compose
+- Deployment: Local or managed cloud runtime
 
 Flow:
 
@@ -118,19 +118,6 @@ cd frontend
 npm install
 npm run dev
 ```
-
-## Docker Run
-
-```bash
-cd linkedin-optimizer
-docker-compose up --build
-```
-
-Services:
-
-- Frontend: http://localhost:3000
-- Backend: http://localhost:8000
-- PostgreSQL: localhost:5432
 
 ## Tests
 
