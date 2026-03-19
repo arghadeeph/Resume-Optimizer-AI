@@ -1,8 +1,8 @@
 from app.schemas.analysis import ProfileData
 
 
-def test_analyze_profile_endpoint(client, monkeypatch):
-    async def fake_scrape(_):
+def test_analyze_resume_endpoint(client, monkeypatch):
+    async def fake_parse(_):
         return ProfileData(
             headline="Senior Backend Engineer",
             about="I build resilient API platforms with Python and cloud services.",
@@ -10,7 +10,7 @@ def test_analyze_profile_endpoint(client, monkeypatch):
             skills="Python, FastAPI, Docker, PostgreSQL",
         )
 
-    async def fake_analyze(db, profile_url, profile_data):
+    async def fake_analyze(db, resume_name, profile_data):
         return {
             "score": 88,
             "headline_score": 18,
@@ -22,13 +22,28 @@ def test_analyze_profile_endpoint(client, monkeypatch):
             "improved_headline": "Senior Backend Engineer | FastAPI | Cloud Systems",
             "improved_about": "I design API-first backend systems that scale reliably.",
             "recruiter_feedback": "Strong fit for backend platform roles.",
+            "experience_level": "mid",
+            "industry": "software",
+            "role": "backend engineer",
+            "issues_summary": "Missing quantified impact.",
+            "improvements_summary": "Add metrics and tighten summary.",
+            "industry_keywords": ["microservices", "AWS"],
+            "section_feedback": {
+                "headline": {"good": ["Clear title"], "ok": ["Short"], "needs_improvement": ["Add stack"]},
+                "about": {"good": ["Readable"], "ok": ["Generic"], "needs_improvement": ["Add outcomes"]},
+                "experience": {"good": ["Relevant roles"], "ok": ["Short bullets"], "needs_improvement": ["Quantify impact"]},
+                "skills": {"good": ["Core stack"], "ok": ["Missing cloud"], "needs_improvement": ["Add AWS"]},
+                "keywords": {"good": ["Some matches"], "ok": ["Low density"], "needs_improvement": ["Add role keywords"]},
+            },
         }
 
-    monkeypatch.setattr("app.routers.profile.scrape_linkedin_profile", fake_scrape)
-    monkeypatch.setattr("app.routers.profile.analyze_and_store_profile", fake_analyze)
+    monkeypatch.setattr("app.routers.profile.parse_resume_upload", fake_parse)
+    monkeypatch.setattr("app.routers.profile.analyze_and_store_resume", fake_analyze)
 
-    payload = {"profile_url": "https://www.linkedin.com/in/john-doe"}
-    response = client.post("/analyze-profile", json=payload)
+    response = client.post(
+        "/analyze-resume",
+        files={"file": ("resume.txt", b"Resume content", "text/plain")},
+    )
 
     assert response.status_code == 200
     data = response.json()
@@ -37,8 +52,9 @@ def test_analyze_profile_endpoint(client, monkeypatch):
     assert "suggestions" in data
 
 
-def test_invalid_url_rejected(client):
+def test_invalid_file_rejected(client):
     response = client.post(
-        "/analyze-profile", json={"profile_url": "https://example.com/profile"}
+        "/analyze-resume",
+        files={"file": ("resume.exe", b"bad", "application/octet-stream")},
     )
-    assert response.status_code == 422
+    assert response.status_code == 400

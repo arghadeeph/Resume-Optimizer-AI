@@ -9,4 +9,17 @@ export type AnalysisResponse = {
   improved_headline: string;
   improved_about: string;
   recruiter_feedback: string;
+  experience_level: string;
+  industry: string;
+  role: string;
+  issues_summary: string;
+  improvements_summary: string;
+  industry_keywords: string[];
+  section_feedback: {
+    headline: { good: string[]; ok: string[]; needs_improvement: string[] };
+    about: { good: string[]; ok: string[]; needs_improvement: string[] };
+    experience: { good: string[]; ok: string[]; needs_improvement: string[] };
+    skills: { good: string[]; ok: string[]; needs_improvement: string[] };
+    keywords: { good: string[]; ok: string[]; needs_improvement: string[] };
+  };
 };

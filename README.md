@@ -1,22 +1,22 @@
-# LinkedIn AI Profile Optimizer
+# Resume Optimizer AI
 
-AI SaaS application that analyzes a public LinkedIn profile and returns recruiter-oriented improvements.
+AI SaaS application that analyzes a resume and returns recruiter-oriented improvements with AI-driven scoring and tailored feedback.
 
 ## Architecture
 
 - Frontend: Next.js + TypeScript + TailwindCSS
-- Backend: FastAPI + Playwright + spaCy + Ollama integration
+- Backend: FastAPI + spaCy + OpenAI integration
 - Database: PostgreSQL (SQLAlchemy)
-- Local AI runtime: Ollama (`llama3`)
+- AI runtime: OpenAI API
 - Deployment: Docker + docker-compose
 
 Flow:
 
-1. User submits LinkedIn profile URL from frontend
-2. Backend validates URL and rate-limits requests
-3. Playwright scraper extracts headline, about, experience, skills
-4. spaCy keyword analyzer scores recruiter keyword alignment
-5. Ollama generates section scores, rewritten content, and suggestions
+1. User uploads a resume from the frontend
+2. Backend parses resume text and rate-limits requests
+3. spaCy keyword analyzer scores recruiter keyword alignment
+4. OpenAI generates section scores, rewritten content, and suggestions
+5. OpenAI also classifies experience level and industry, and generates structured feedback
 6. Backend computes total score (0-100), stores analysis, and returns response
 
 ## Project Tree
@@ -54,15 +54,11 @@ linkedin-optimizer/
 
 ## Backend API
 
-`POST /analyze-profile`
+`POST /analyze-resume`
 
 Request:
 
-```json
-{
-  "profile_url": "https://www.linkedin.com/in/example"
-}
-```
+`multipart/form-data` with a single `file` field (PDF, DOCX, or TXT).
 
 Response:
 
@@ -77,7 +73,20 @@ Response:
   "suggestions": ["Add measurable impact in experience bullets"],
   "improved_headline": "Senior Software Engineer | FastAPI | AWS | Platform",
   "improved_about": "...",
-  "recruiter_feedback": "..."
+  "recruiter_feedback": "...",
+  "experience_level": "mid",
+  "industry": "software",
+  "role": "backend engineer",
+  "issues_summary": "Short summary of key issues",
+  "improvements_summary": "Short summary of high-impact improvements",
+  "industry_keywords": ["microservices", "API design", "AWS"],
+  "section_feedback": {
+    "headline": { "good": ["Clear title"], "ok": ["Short"], "needs_improvement": ["Add tech stack"] },
+    "about": { "good": ["Readable"], "ok": ["Generic"], "needs_improvement": ["Add outcomes"] },
+    "experience": { "good": ["Relevant roles"], "ok": ["Short bullets"], "needs_improvement": ["Quantify impact"] },
+    "skills": { "good": ["Core stack"], "ok": ["Missing cloud"], "needs_improvement": ["Add AWS"] },
+    "keywords": { "good": ["Some matches"], "ok": ["Low density"], "needs_improvement": ["Add role keywords"] }
+  }
 }
 ```
 
@@ -99,7 +108,6 @@ cd backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-playwright install chromium
 uvicorn app.main:app --reload --port 8000
 ```
 
@@ -122,14 +130,7 @@ Services:
 
 - Frontend: http://localhost:3000
 - Backend: http://localhost:8000
-- Ollama: http://localhost:11434
 - PostgreSQL: localhost:5432
-
-After containers are up, pull model once:
-
-```bash
-docker exec -it linkedin-optimizer-ollama ollama pull llama3
-```
 
 ## Tests
 
@@ -150,6 +151,6 @@ npm test -- --runInBand
 ## Deployment Notes
 
 1. Use managed PostgreSQL in production.
-2. Run Ollama on dedicated CPU/GPU node.
+2. Configure OpenAI API keys and usage limits for production.
 3. Restrict CORS to production domains.
 4. Add auth and per-user usage quotas before public launch.

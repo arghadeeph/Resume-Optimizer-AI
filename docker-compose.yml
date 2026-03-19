@@ -18,14 +18,13 @@ services:
     container_name: linkedin-optimizer-backend
     ports:
       - "8000:8000"
+    env_file:
+      - backend/.env
     environment:
       - DATABASE_URL=postgresql+psycopg2://postgres:postgres@db:5432/linkedin_optimizer
-      - OLLAMA_URL=http://ollama:11434
-      - OLLAMA_MODEL=llama3
       - RATE_LIMIT_PER_MINUTE=20
     depends_on:
       - db
-      - ollama
 
   db:
     image: postgres:16-alpine
@@ -39,19 +38,5 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  ollama:
-    image: ollama/ollama:latest
-    container_name: linkedin-optimizer-ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    healthcheck:
-      test: ["CMD", "ollama", "--version"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
 volumes:
   postgres_data:
-  ollama_data:

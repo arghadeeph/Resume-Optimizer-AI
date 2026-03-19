@@ -1,15 +1,18 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import AppShell from "@/components/AppShell";
 
 export const metadata: Metadata = {
-  title: "LinkedIn AI Profile Optimizer",
-  description: "AI-powered LinkedIn profile analysis for recruiter readiness"
+  title: "Resume Optimizer AI",
+  description: "AI-powered resume analysis for recruiter readiness"
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <AppShell>{children}</AppShell>
+      </body>
     </html>
   );
 }

@@ -9,19 +9,23 @@ jest.mock("next/navigation", () => ({
 }));
 
 jest.mock("@/services/api", () => ({
-  analyzeProfile: jest.fn()
+  analyzeResume: jest.fn()
 }));
 
-const { analyzeProfile } = jest.requireMock("@/services/api");
+const { analyzeResume } = jest.requireMock("@/services/api");
 
 describe("HomePage", () => {
   beforeEach(() => {
     localStorage.clear();
+    localStorage.setItem(
+      "auth_user",
+      JSON.stringify({ name: "Test User", email: "test@example.com" })
+    );
     pushMock.mockReset();
   });
 
-  it("submits URL and navigates to dashboard", async () => {
-    analyzeProfile.mockResolvedValueOnce({
+  it("submits resume and navigates to dashboard", async () => {
+    analyzeResume.mockResolvedValueOnce({
       score: 90,
       headline_score: 18,
       about_score: 18,
@@ -31,18 +35,19 @@ describe("HomePage", () => {
       suggestions: ["Add metrics"],
       improved_headline: "New headline",
       improved_about: "New about",
-      recruiter_feedback: "Strong profile"
+      recruiter_feedback: "Strong resume"
     });
 
     render(<HomePage />);
 
-    fireEvent.change(screen.getByLabelText(/linkedin profile url/i), {
-      target: { value: "https://www.linkedin.com/in/jane-doe" }
+    const file = new File(["Resume content"], "resume.txt", { type: "text/plain" });
+    fireEvent.change(screen.getAllByLabelText(/upload resume/i)[0], {
+      target: { files: [file] }
     });
-    fireEvent.click(screen.getByRole("button", { name: /analyze profile/i }));
+    fireEvent.click(screen.getAllByRole("button", { name: /analyze resume/i })[0]);
 
     await waitFor(() => {
-      expect(analyzeProfile).toHaveBeenCalled();
+      expect(analyzeResume).toHaveBeenCalled();
       expect(pushMock).toHaveBeenCalledWith("/dashboard");
     });
   });

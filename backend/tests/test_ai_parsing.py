@@ -1,4 +1,4 @@
-from app.ai.ollama_client import _normalize_response, _parse_json_response
+from app.ai.openai_client import _normalize_response, _parse_json_response
 
 
 def test_parse_json_response_plain_json():
